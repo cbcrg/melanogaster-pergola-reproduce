@@ -27,10 +27,10 @@
  */
 
 params.scores       = "$baseDir/small_data/scores/scores_chase.mat"
-params.var_dir      = "$baseDir/small_data/perframe/"
+params.var_dir      = "$baseDir/small_data/perframe_*"
 params.var_dir_test = "$baseDir/"
 params.variables    = "velmag"
-params.mappings     = "$baseDir/small_data/jaaba2pergola.txt"
+params.mappings     = "$baseDir/small_data/mappings/jaaba2pergola.txt"
 params.output       = "results/"
 params.image_format = "tiff"
 params.complete     = false
