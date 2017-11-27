@@ -119,7 +119,7 @@ tbl_frac_time$strain <- gsub("^.*_", "", as.character(tbl_frac_time$group))
 
 ggplot(tbl_frac_time, aes(strain, fraction, fill=strain)) + geom_boxplot(notch=FALSE) +
   labs (#title = "Jaaba annotated vs. non-annotated intervals\n",
-    y = paste("Fraction time ", behavior, "\n", sep=""), x = "\n") +
+    y = paste("Fraction time ", behavior, " (%)", "\n", sep=""), x = "\n") +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values = cbb_palette) +
   theme(legend.position="none") +
