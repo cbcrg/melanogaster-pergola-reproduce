@@ -1,4 +1,4 @@
-# melanogaster_GAL4-Pergola-Reproduce.nf
+# melanogaster-pergola-reproduce.nf
 
 ![CircleCI status](https://circleci.com/gh/JoseEspinosa/melanogaster-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
@@ -41,7 +41,7 @@ docker pull pergola/pergola@sha256:f7208e45e761dc0cfd3e3915237eb1a96eead6dfa9c8f
 Once data is downloaded, it is possible to reproduce all the results using this command:
 
 ```bash
-NXF_VER=0.26.1 nextflow run melanogaster_GAL4-Pergola-Reproduce.nf \ 
+NXF_VER=0.26.1 nextflow run melanogaster-pergola-reproduce.nf \ 
     --scores='data/scores/scores_chase_*.mat' \
     --var_dir='data/perframe_*' \
     --variables="velmag" \

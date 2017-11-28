@@ -35,7 +35,7 @@ params.output       = "results/"
 params.image_format = "tiff"
 params.complete     = false
 
-log.info "melanogaster_GAL4 - Pergola - Reproduce  -  version 0.1"
+log.info "melanogaster - pergola - reproduce  -  version 0.1"
 log.info "====================================="
 log.info "annotated scores       : ${params.scores}"
 log.info "variables directory    : ${params.var_dir}"
@@ -48,7 +48,7 @@ log.info "\n"
 
 // Example command to run the script with the toy data provided in the repository
 /*
-nextflow run melanogaster_GAL4-Pergola-Reproduce.nf \
+nextflow run melanogaster-pergola-reproduce.nf \
   --scores='small_data/scores/scores_chase_*.mat' \
   --var_dir='small_data/perframe_*' \
   --variables="velmag" \
