@@ -1,20 +1,18 @@
 # melanogaster-pergola-reproduce.nf
 
-![CircleCI status](https://circleci.com/gh/JoseEspinosa/melanogaster-pergola-reproduce.png?style=shield)
+![CircleCI status](https://circleci.com/gh/cbcrg/melanogaster-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
 
-This repository contains the software, scripts and data to reproduce the results corresponding to the *D. melanogaster* GAL4 line experiment of the Pergola paper.
+This repository contains the software, scripts and data to reproduce the results corresponding to the *D. melanogaster* experiment of the Pergola paper.
 
 If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](../README.md)
 
 ## Clone the repository
 
 ```bash
-git clone --recursive https://github.com/JoseEspinosa/pergola-paper-reproduce.git
-cd pergola-paper-reproduce/melanogaster_GAL4
+git clone --recursive https://github.com/cbcrg/melanogaster-pergola-reproduce.git
+cd melanogaster-pergola-reproduce
 ```
-
-**Note**: If you have previously download the repository, then you only need to go to the ``melanogaster_GAL4`` folder.
 
 ## Data
 
@@ -24,7 +22,7 @@ Data can be downloaded and uncompressed using the following command:
 
 ```bash
 mkdir data
-wget -O- https://zenodo.org/record/582475/files/melanogaster_GAL4.tar.gz | tar xz -C data
+wget -O- https://zenodo.org/record/582475/files/mouse_dataset.tar.gz | tar xz -C data
 ```
 
 #### Original Data Sources
