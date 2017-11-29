@@ -5,7 +5,7 @@
 
 This repository contains the software, scripts and data to reproduce the results corresponding to the *D. melanogaster* experiment of the Pergola paper.
 
-If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](../README.md)
+If you have not install yet [docker](https://www.docker.com/) and [nextflow](https://www.nextflow.io/), follow this [intructions](https://github.com/cbcrg/pergola-reproduce/blob/master/README.md)
 
 ## Clone the repository
 
@@ -16,18 +16,19 @@ cd melanogaster-pergola-reproduce
 
 ## Data
 
-Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball.
+Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1067836.svg)](https://doi.org/10.5281/zenodo.1067836).
 
 Data can be downloaded and uncompressed using the following command:
 
 ```bash
 mkdir data
-wget -O- https://zenodo.org/record/582475/files/mouse_dataset.tar.gz | tar xz -C data
+wget -O- https://zenodo.org/record/1067836/files/melanogaster_dataset.tar.gz | tar xz -C data
 ```
 
 #### Original Data Sources
-The original data can be downloaded from the following [source](http://sourceforge.net/projects/jaaba/files/Sample%20Data/sampledata_v0.5.zip/download).
-
+The original data can be downloaded from the following [source](https://sourceforge.net/projects/jaaba/files/Sample%20Data/sampledata_v0.1.zip/download). This data has to be processes using 
+[Jaaba](http://jaaba.sourceforge.net/) to annotated chase behavior from the video recordings available on this link.
+ 
 ## Pull docker image
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
 
@@ -47,14 +48,11 @@ NXF_VER=0.26.1 nextflow run melanogaster-pergola-reproduce.nf \
     -with-docker
 ```
 
-## Sushi visualization
+##  Results
 
 The previous command generates a results folder that contains the plots used in the paper figure:
 
-* A Sushi plot the intervals corresponding to chasing behavior annotated using [Jaaba](http://jaaba.sourceforge.net/).
-* A Sushi plot of each of the variables derived from the flies trajectories using [CTRAX](http://ctrax.sourceforge.net/). This variables are used by JAABA to train the classifier and predict the intervals annotated as chasing behavior. 
-* A volcano plot that shows the fold change of the variables from intervals annotated as chansing behavior and the rest of the trajectory, the magnitude of the change, and how significant it is.
-* A box plot for each of the variables comparing chase annotated intervals and non-annotated.
-* Besides in the results folder you can find all the intermediate files used for the rendering of the data.
-
-**Note**: Sushi is a R/Bioconductor package, designed for the creation of publication-quality plots for genomic visualizations, more info [here](https://www.bioconductor.org/packages/release/bioc/html/Sushi.html).
+* A boxplot comparing the fraction of time performing chase behavior of the GAL4 mutant and the control group   
+* Two figures created using [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) displaying the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups. 
+* Two figures created using [Sushi](https://bioconductor.org/packages/release/bioc/html/Sushi.html) displaying the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups. 
+* A folder containing all the necessary files to render the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups using [IGV](http://software.broadinstitute.org/software/igv/) 
