@@ -1,5 +1,6 @@
 # melanogaster-pergola-reproduce.nf
 
+[![DOI](https://zenodo.org/badge/112313806.svg)](https://zenodo.org/badge/latestdoi/112313806)
 ![CircleCI status](https://circleci.com/gh/cbcrg/melanogaster-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
 
