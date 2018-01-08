@@ -35,7 +35,7 @@ params.output       = "results/"
 params.image_format = "tiff"
 params.complete     = false
 
-log.info "melanogaster - pergola - reproduce  -  version 0.1"
+log.info "melanogaster - pergola - reproduce  -  version 0.1.1"
 log.info "====================================="
 log.info "annotated scores       : ${params.scores}"
 log.info "variables directory    : ${params.var_dir}"
