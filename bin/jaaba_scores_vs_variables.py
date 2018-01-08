@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -52,10 +52,7 @@ chase_score_f = args.score_file
 annotated_type = args.type_annotated
 var_traj = args.variable_name
 path_var_jaaba = args.variables_dir
-# map_file_jaaba = "/Users/jespinosa/git/pergola/test/jaaba2pergola.txt"
 mappings_jaaba = mapping.MappingInfo(args.mapping_file)
-
-# mapping_bed = mapping.MappingInfo("/Users/jespinosa/git/pergola/test/c_elegans_data_test/bed2pergola.txt")
 
 # tmp file out
 tmp_track = NamedTemporaryFile(prefix='jaaba_csv', suffix='.csv', delete=True)
@@ -70,24 +67,9 @@ chr_file_n = "chrom"
 mapping.write_chr_sizes (scores_chase_int, file_n=chr_file_n)
 chr_file = chr_file_n + ".sizes"
 
-#jaaba_to_pergola sp -i "/Users/jespinosa/git/pergola/sample_data/jaaba_example/scores_chase.mat" -m /Users/jespinosa/git/pergola/test/jaaba2pergola.txt -f bed -bl -nt
-
 bed_annotated_int = scores_chase_int.convert(mode="bed")
 
-## Get the variables that Jaaba processes from the trajectory
-# path_var_jaaba = '/Users/jespinosa/JAABA_MAC_0.5.1/sampledata_v0.5/Chase1_TrpA_Rig1Plate15BowlA_20120404T141155/perframe/'
-#jaaba_to_pergola fp -i "/Users/jespinosa/JAABA_MAC_0.5.1/sampledata_v0.5/Chase1_TrpA_Rig1Plate15BowlA_20120404T141155/perframe/" -jf velmag dtheta  -m "/Users/jespinosa/git/pergola/test/jaaba2pergola.txt" -dd /Users/jespinosa/2017_sushi_pergola/data/ -f bedGraph -nt 
-
-
 # var_traj = ["velmag", "dtheta"]
-# var_traj = "dtheta"
-# var_traj = "velmag"
-# var_traj = "velmag_tail"
-# var_traj = "dtheta"
-# var_traj = "dell2nose"
-# var_traj = "angle2wall"
-
-# var_traj = "phi"
 
 dict_bedGraph_features = dict()
 # statistic="mean"
@@ -120,14 +102,6 @@ for tr, bedGraph_var in dict_bedGraph_var.iteritems():
 
             bedGraph_var_bt.intersect(bed_annotated_int_bt).saveas('values_' + id_worm + '_' + var_traj + '.bedGraph')
             bedGraph_var_bt.intersect(bed_annotated_int_comp).saveas('values_' + id_worm + '_' + var_traj + '.comp.bedGraph')
-
-            # bedGraph_var_bt.(bed_annotated_int_bt).saveas('values_' + id_worm + '_' + var_traj + '.comp.bedGraph')
-            #
-            # .intersect(motion_bt).saveas(tag_file + ".intersect.bed")
-            #
-            # bed_annotated_int_bt.intersect()
-            # (bedGraph_var_bt, c=4, o=statistic, null=0).saveas('values_' + id_worm + '_' + var_traj + '.txt')
-            # bed_annotated_int_comp.map(bedGraph_var_bt, c=4, o=statistic, null=0).saveas('values_' + id_worm + '_' + var_traj + '.comp.txt')
 
     ## if no annotations present then returns bedGraph for its plotting and and empty bedgraph for annotated regions
     else:
