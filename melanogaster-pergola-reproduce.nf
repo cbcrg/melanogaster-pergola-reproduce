@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 /*
- *  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
- *  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+ *  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+ *  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
  *
  *  This file is part of Pergola.
  *
@@ -26,7 +26,7 @@
  * Script to reproduce Pergola paper Jaaba annotated data analysis
  */
 
-params.scores       = "$baseDir/small_data/scores/scores_chase.mat"
+params.scores       = "$baseDir/small_data/scores/scores_chase_*.mat"
 params.var_dir      = "$baseDir/small_data/perframe_*"
 params.var_dir_test = "$baseDir/"
 params.variables    = "velmag"
@@ -173,6 +173,55 @@ process comparison_fract_time {
     """
 }
 
+results_bed_score.into { results_bed_score_1; results_bed_score_2; results_bed_score_3 }
+
+/*
+ * Represent JAABA behavior annotations using Sushi
+ */
+process sushi_plot_behavior_annot {
+    publishDir = [path: "results/sushi", mode: 'copy']
+
+    input:
+    set scores_bed_dir, tag_group, behavior from results_bed_score_1
+
+    output:
+    file "*.${image_format}" into sushi_plot_annot
+
+    """
+    sushi_pergola_bed.R --path2scores=${scores_bed_dir} \
+        --image_format=${image_format}
+
+    mv "sushi_jaaba_annot.${image_format}" "sushi_${behavior}_${tag_group}.${image_format}"
+    """
+}
+
+/*
+ * Represent JAABA behavior annotations using Gviz
+ */
+process gviz_plot_behavior_annot {
+    publishDir = [path: "results/gviz", mode: 'copy']
+
+    input:
+    set scores_bed_dir, tag_group, behavior from results_bed_score_2
+
+    output:
+    file "*.${image_format}" into gviz_plot_var
+
+    """
+    melanogaster_gviz_annotations.R --path_bed_files=${scores_bed_dir} \
+        --image_format=${image_format}
+
+    mv "gviz_jaaba_annot.${image_format}" "gviz_${behavior}_${tag_group}.${image_format}"
+    """
+}
+
+/*
+ * From here on the code will be only executed when argument complete is set
+ */
+
+/*
+ * Converts variables from the behavioral tracking into bedGraph files
+ */
 process variables_to_bedGraph {
     input:
     set file ('variable_d'), val (tag_group) from variable_dir_bg
@@ -193,49 +242,14 @@ process variables_to_bedGraph {
     """
 }
 
-results_bed_score.into { results_bed_score_1; results_bed_score_2; results_bed_score_3 }
-
-process sushi_plot_behavior_annot {
-    publishDir = [path: "results/sushi", mode: 'copy']
-
-    input:
-    set scores_bed_dir, tag_group, behavior from results_bed_score_1
-
-    output:
-    file "*.${image_format}" into sushi_plot_annot
-
-    """
-    sushi_pergola_bed.R --path2scores=${scores_bed_dir} \
-        --image_format=${image_format}
-
-    mv "sushi_jaaba_annot.${image_format}" "sushi_${behavior}_${tag_group}.${image_format}"
-    """
-}
-
-process gviz_plot_behavior_annot {
-    publishDir = [path: "results/gviz", mode: 'copy']
-
-    input:
-    set scores_bed_dir, tag_group, behavior from results_bed_score_2
-
-    output:
-    file "*.${image_format}" into gviz_plot_var
-
-    """
-    melanogaster_gviz_annotations.R --path_bed_files=${scores_bed_dir} \
-        --image_format=${image_format}
-
-    mv "gviz_jaaba_annot.${image_format}" "gviz_${behavior}_${tag_group}.${image_format}"
-    """
-}
-
-strain_output = "${params.output}"
-
 score_files_tag_comp_var_dir = score_files_tag_comp
                                 .spread ( variables_list )
                                 .spread (variable_dir_scores)
-                                .filter { it[1] == it[4] }
+                                .filter { it[1] == it[5] }
 
+/*
+ * Intersect JAABA annotations with variables from the behavior trajectory
+ */
 process jaaba_scores_vs_variables {
   	input:
   	set file (scores), val (behavior_strain), val(behavior), val (var), file ('variable_d'), val (strain) from score_files_tag_comp_var_dir
@@ -260,6 +274,9 @@ process jaaba_scores_vs_variables {
   	"""
 }
 
+/*
+ * Plots bedGraph of variables with annotations of a given behavior highlighted
+ */
 process sushi_plot_highlight_bg {
     input:
     set file (bedGr_dir), val (var), val (behavior_strain) from bedGr_to_sushi
@@ -283,6 +300,9 @@ score_variables_vs_scores = results_bedg_var
                                 .spread (results_bed_score_3)
                                 .filter { it[2] == it[4] }
 
+/*
+ * Creates a pannel with annotations on the top and bedGraph of variables on the bottom
+ */
 process sushi_plot_behavior_var {
     input:
     set var_bedg_dir, var, tag_group, scores_bed_dir, tag_group_score, behavior from score_variables_vs_scores
@@ -303,6 +323,9 @@ process sushi_plot_behavior_var {
     """
 }
 
+/*
+ * Represent variables from the trajectory using Gviz
+ */
 process gviz_plot_behavior_var {
     input:
     set var_bedg_dir, var_name, tag_group from bedGr_to_gviz
@@ -324,6 +347,9 @@ process gviz_plot_behavior_var {
     """
 }
 
+/*
+ * Compares distribution of intervals annotated as a behavior vs. those no-annotated
+ */
 process significance_variable_annotation {
     input:
     set file(dir_annot_vs_non_annot), var, strain from annot_vs_non_annot_result
@@ -348,6 +374,10 @@ process significance_variable_annotation {
 FC_pvalues_collected = FC_pvalue
                         .collectFile(name: 'FC_pvalue.csv', newLine: false)
 
+/*
+ * Volcano plot of P values of the comparison of the variables in periods annotated as a behavior and those no
+ * annotated vs the fold change of these variables in periods annotated as a behavior and those no annotated
+ */
 process plot_volcano {
     input:
     file pvalues_FC from FC_pvalues_collected
