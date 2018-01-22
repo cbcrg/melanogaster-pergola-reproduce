@@ -41,7 +41,7 @@ docker pull pergola/pergola@sha256:0737f3e70dde73d0272a0be37e05a36a6fed390c8820c
 Once data is downloaded, it is possible to reproduce all the results using this command:
 
 ```bash
-NXF_VER=0.26.4 nextflow run melanogaster-pergola-reproduce.nf \
+NXF_VER=0.27.0 nextflow run melanogaster-pergola-reproduce.nf \
     --scores='data/scores/scores_chase_*.mat' \
     --var_dir='data/perframe_*' \
     --variables="velmag" \
