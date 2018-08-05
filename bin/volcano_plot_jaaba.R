@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2016, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2016, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -40,11 +40,12 @@ if("--help" %in% args) {
       volcano_plot_jaaba
       
       Arguments:
-      --path2file=someValue     - character, path to read bedGraph files              
-      --help                     - print this text
+      --path2file=someValue       - character, path to read bedGraph files              
+      --image_format=image_format - character
+      --help                      - print this text
       
       Example:
-      ./volcano_plot_jaaba.R --path2file=\"/foo/variables\"\n")
+      ./volcano_plot_jaaba.R --path2file=\"/foo/variables\" --image_format=\"image_format\" \n")
   
   q (save="no")
 }
@@ -72,6 +73,18 @@ names (argsL) <- argsDF$V1
   }
 }
 
+# plot image format
+{
+  if (is.null (argsL$image_format))
+  {
+    image_format <- "tiff"
+    warning ("[Warning]: format for plots not provided, default tiff")
+  }
+  else
+  {
+    image_format <- argsL$image_format
+  }
+}
 ## Loading libraries
 library("ggplot2")
 library("ggrepel")
@@ -81,90 +94,27 @@ fc_pvalue <- read.table(path2file, header=FALSE)
 colnames (fc_pvalue) <- c("variable", "log2FoldChange", "pvalue")
 max_y <- max (fc_pvalue$log2FoldChange)
 
-fc_pvalue$highlight <- ifelse(abs(fc_pvalue$log2FoldChange) > 0.2 & -log10(fc_pvalue$pvalue) > 40, "black", "red") 
+fc_pvalue$highlight <- ifelse(abs(fc_pvalue$log2FoldChange) > 0.2 & -log10(fc_pvalue$pvalue) > 90, "black", "red") 
 
-## Filtering extreme values for plotting name
-interesting_p_fc_pos <- subset (fc_pvalue, log2FoldChange > 0.3)
-interesting_p_fc_neg <- subset (fc_pvalue, log2FoldChange < -0.18)
-interesting_p_pv <- subset (fc_pvalue, -log10(pvalue) > 50)
+fc_pvalue_int <- fc_pvalue [abs(fc_pvalue$log2FoldChange) > 0.4 & -log10(fc_pvalue$pvalue) > 90, ]
+fc_pvalue$logPvalue <- log(fc_pvalue$pvalue)
 
-# png(paste("volcano_plot", ".png", sep=""))
-pdf ( paste("volcano_plot", ".pdf", sep=""), height=10, width=12)
-
-with(fc_pvalue, plot(log2FoldChange, -log10(pvalue), pch=20, main="Volcano plot"))
-# with(interesting_p_fc_pos, text(log2FoldChange, -log10(pvalue), variable, cex=0.8, pos=4, col="red"))
-# with(interesting_p_fc_neg, text(log2FoldChange, -log10(pvalue), variable, cex=0.8, pos=4, col="red"))
-# with(interesting_p_pv, text(log2FoldChange, -log10(pvalue), variable, cex=0.8, pos=4, col="red"))
-dev.off()
-
-# png(paste("volcano_plot_pos", ".png", sep=""))
-pdf ( paste("volcano_plot_pos", ".pdf", sep=""), height=10, width=12)
-
-if (nrow(interesting_p_fc_pos) != 0) {
-with(interesting_p_fc_pos, plot(log2FoldChange, -log10(pvalue), xlim=c(0.4, max_y), pch=20))
-with(interesting_p_fc_pos, text(log2FoldChange, -log10(pvalue), variable, cex=0.8, pos=4, col="red"))
-dev.off()
-}
-
-volcano_ggplot_pos <- ggplot(interesting_p_fc_pos) +                  
-                      geom_point(aes(x=log2FoldChange, y=-log10(pvalue), color=highlight)) +                  
-                      scale_color_manual(values=c('red','black')) +
-                      geom_text_repel(aes(log2FoldChange, -log10(pvalue), label = variable)) +
-                      theme_classic(base_size = 16) +
-                      theme(legend.position="none")
-ggsave (volcano_ggplot_pos, file=paste("volcano_plot_labels_pos", ".png", sep=""))
-
-# png(paste("volcano_plot_neg", ".png", sep=""))
-pdf(paste("volcano_plot_neg", ".pdf", sep=""), height=10, width=12)
-
-if (nrow(interesting_p_fc_neg) != 0) {
-with(interesting_p_fc_neg, plot(log2FoldChange, -log10(pvalue), xlim=c(-0.42,-0.18), pch=20))
-with(interesting_p_fc_neg, text(log2FoldChange, -log10(pvalue), variable, cex=0.8, pos=4, col="red"))
-dev.off()
-}
-
-volcano_ggplot_neg <- ggplot(interesting_p_fc_neg) +                  
-  geom_point(aes(x=log2FoldChange, y=-log10(pvalue), color=highlight)) +                  
-  scale_color_manual(values=c('red','black'))+
-  geom_text_repel(aes(log2FoldChange, -log10(pvalue), label = variable)) +
-  theme_classic(base_size = 16) +
-  theme(legend.position="none")
-# ggsave (volcano_ggplot_neg, file=paste("volcano_plot_labels_neg", ".png", sep=""))
-ggsave (volcano_ggplot_neg, file=paste("volcano_plot_labels_neg", ".pdf", sep=""))
-
-velmag <- fc_pvalue [fc_pvalue$variable == "velmag",]
-
-# fc_pvalue_int <- fc_pvalue [abs(fc_pvalue$log2FoldChange) > 0.2 & -log10(fc_pvalue$pvalue) > 40, ]
-# fc_pvalue_int <- fc_pvalue [abs(fc_pvalue$log2FoldChange) > 0.8 & -log10(fc_pvalue$pvalue) > 40, ]
-fc_pvalue_int <- fc_pvalue [abs(fc_pvalue$log2FoldChange) > 0.4 & -log10(fc_pvalue$pvalue) > 55, ]
-
+fc_pvalue <- fc_pvalue [fc_pvalue$pvalue != 0,] 
 volcano_ggplot <- ggplot(fc_pvalue) +                  
                   geom_point(aes(x=log2FoldChange, y=-log10(pvalue), color=highlight)) +                  
                   scale_color_manual(values=c('red','black'))+
-#                   geom_text_repel(aes(log2FoldChange, -log10(pvalue), label = variable)) +
                   geom_text_repel(data=fc_pvalue_int, aes(log2FoldChange, -log10(pvalue), label = variable)) +
-#                   geom_text_repel(data=interesting_p_fc_pos, aes(log2FoldChange, -log10(pvalue), label = variable)) +
-#                   geom_text_repel(data=velmag, aes(log2FoldChange, -log10(pvalue), label = variable)) +
                   theme_classic(base_size = 16) +
                   theme(legend.position="none") +
-#                   xlim(c(-1,1.6))
-                  xlim(c(-0.5,1.5))
+                  labs (title = "\n", y = paste("-Log10(p-value)\n", sep=""), 
+                        x = "Log2(Fold change)\n") +
+                  xlim(c(-0.5, 1.5))
+volcano_ggplot 
+plot_width <- 14
+plot_height <- 8
 
-# ggsave (volcano_ggplot, file=paste("volcano_plot_labels", ".png", sep=""))
-ggsave (volcano_ggplot, file=paste("volcano_plot_labels", ".pdf", sep=""))
-
-fc_pvalue_int <- fc_pvalue [abs(fc_pvalue$log2FoldChange) > 0.8 & -log10(fc_pvalue$pvalue) > 80, ]
-
-volcano_ggplot <- ggplot(fc_pvalue) +                  
-  geom_point(aes(x=log2FoldChange, y=-log10(pvalue), color=highlight)) +                  
-  scale_color_manual(values=c('red','black'))+
-  geom_text_repel(data=fc_pvalue_int, aes(log2FoldChange, -log10(pvalue), label = variable)) +
-  theme_classic(base_size = 16) +
-  theme(legend.position="none") +
-  xlim(c(-0.5,1.5))
-
-ggsave (volcano_ggplot, file=paste("volcano_plot_stringent_threshold", ".pdf", sep=""))
+name_out <- paste ("volcano_plot_labels", ".", image_format, sep="")
+ggsave (file=name_out, width=plot_width, height=plot_height)
 
 fc_pvalue$pvalue <- -log10(fc_pvalue$pvalue)
-write.table(fc_pvalue, "tbl_fc_pvalues.txt", sep="\t", col.names=TRUE, row.names=FALSE) 
-
+write.table(fc_pvalue, "tbl_fc_pvalues.txt", sep="\t", col.names=TRUE, row.names=FALSE)

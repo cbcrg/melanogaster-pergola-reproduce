@@ -56,6 +56,9 @@ nextflow run melanogaster-pergola-reproduce.nf \
   --output='results' \
   --image_format='png' \
   -with-docker
+
+## command to run melanogaster data
+nextflow run melanogaster-pergola-reproduce.nf   --scores='small_data/scores/scores_chase_*.mat'   --var_dir='/Users/jespinosa/Dropbox_CRG_backup/2014_pergolaPaper/data_paper/melanogaster_GAL4/perframe_*'   --variables="all"   --mappings='small_data/mappings/jaaba2pergola.txt'   --output='results'   --image_format='png'   -with-docker
 */
 
 /*
@@ -116,7 +119,7 @@ image_format = "${params.image_format}"
  * We use genome coverage to obtain the fraction of time performing the behavior
  */
 process fract_time_behavior {
-    publishDir = [path: "results/igv", mode: 'copy', pattern: "*_igv*"]
+    publishDir = [path: "${params.output}/igv", mode: 'copy', pattern: "*_igv*"]
 
     input:
     set file (scores), val (tag_group), val (behavior) from score_files_tag_bed
@@ -159,7 +162,7 @@ fraction_time_comb_gr = fraction_time.collectFile()
  * Compares the fraction of time spent of a given behavior on a boxplot
  */
 process comparison_fract_time {
-    publishDir = [path: "results/fraction_time", mode: 'copy']
+    publishDir = [path: "${params.output}/fraction_time", mode: 'copy']
 
     input:
     file (fraction_time_tbl) from fraction_time_comb_gr
@@ -179,7 +182,7 @@ results_bed_score.into { results_bed_score_1; results_bed_score_2; results_bed_s
  * Represent JAABA behavior annotations using Sushi
  */
 process sushi_plot_behavior_annot {
-    publishDir = [path: "results/sushi", mode: 'copy']
+    publishDir = [path: "${params.output}/sushi", mode: 'copy']
 
     input:
     set scores_bed_dir, tag_group, behavior from results_bed_score_1
@@ -199,7 +202,7 @@ process sushi_plot_behavior_annot {
  * Represent JAABA behavior annotations using Gviz
  */
 process gviz_plot_behavior_annot {
-    publishDir = [path: "results/gviz", mode: 'copy']
+    publishDir = [path: "${params.output}/gviz", mode: 'copy']
 
     input:
     set scores_bed_dir, tag_group, behavior from results_bed_score_2
@@ -215,9 +218,86 @@ process gviz_plot_behavior_annot {
     """
 }
 
+score_files_tag_comp_var_dir = score_files_tag_comp
+                                .spread ( variables_list )
+                                .spread (variable_dir_scores)
+                                .filter { it[1] == it[5] }
+
+//score_files_tag_comp_var_dir.println()
+//return
+
 /*
- * From here on the code will be only executed when argument complete is set
+ * Intersect JAABA annotations with variables from the behavior trajectory
  */
+process jaaba_scores_vs_variables {
+
+  	input:
+  	set file (scores), val (behavior_strain), val(behavior), val (var), file ('variable_d'), val (strain) from score_files_tag_comp_var_dir
+
+    file mapping_file
+
+  	output:
+    set "results_annot_${strain}_${var}", var, behavior_strain into annot_vs_non_annot_result
+    set "results_bedGr_${strain}_${var}", var, behavior_strain into bedGr_to_sushi
+
+    script:
+  	"""
+  	jaaba_scores_vs_variables.py -s ${scores} -t ${behavior_strain} -d ${variable_d} -v ${var} -m  ${mapping_file}
+  	mkdir results_annot_${strain}_${var}
+  	mkdir results_bedGr_${strain}_${var}
+
+  	mv *.txt  results_annot_${strain}_${var}/
+    mv *.bedGraph results_bedGr_${strain}_${var}/
+  	"""
+}
+
+/*
+ * Compares distribution of intervals annotated as a behavior vs. those no-annotated
+ */
+process significance_variable_annotation {
+    input:
+    set file(dir_annot_vs_non_annot), var, strain from annot_vs_non_annot_result
+
+    output:
+    file "boxplot_${var}_${strain}.${image_format}"
+    stdout into FC_pvalue
+
+    script:
+    """
+    ttest_var_annotated_jaaba.R --path2files=${dir_annot_vs_non_annot} \
+        --variable_name=${var} \
+        --image_format=${image_format}
+
+    mv ${var}.${image_format} boxplot_${var}_${strain}.${image_format}
+    """
+}
+
+FC_pvalues_collected = FC_pvalue
+                        .collectFile(name: 'FC_pvalue.csv', newLine: false)
+
+/*
+ * Volcano plot of P values of the comparison of the variables in periods annotated as a behavior and those no
+ * annotated vs the fold change of these variables in periods annotated as a behavior and those no annotated
+ */
+process plot_volcano {
+    publishDir = [path: "${params.output}/volcano", mode: 'copy']
+
+    input:
+    file pvalues_FC from FC_pvalues_collected
+
+    output:
+    file "*.${image_format}"
+    //file 'tbl_fc_pvalues.txt'
+
+    script:
+    """
+    volcano_plot_jaaba.R --path2file=${pvalues_FC} \
+                         --image_format=${image_format}
+    """
+}
+
+
+// *** From here on the code will be only executed when argument complete is set ***
 
 /*
  * Converts variables from the behavioral tracking into bedGraph files
@@ -240,38 +320,6 @@ process variables_to_bedGraph {
     mkdir results_var_${tag_group}_${var}
     mv *.bedGraph results_var_${tag_group}_${var}/
     """
-}
-
-score_files_tag_comp_var_dir = score_files_tag_comp
-                                .spread ( variables_list )
-                                .spread (variable_dir_scores)
-                                .filter { it[1] == it[5] }
-
-/*
- * Intersect JAABA annotations with variables from the behavior trajectory
- */
-process jaaba_scores_vs_variables {
-  	input:
-  	set file (scores), val (behavior_strain), val(behavior), val (var), file ('variable_d'), val (strain) from score_files_tag_comp_var_dir
-
-    file mapping_file
-
-  	output:
-    set "results_annot_${strain}_${var}", var, behavior_strain into annot_vs_non_annot_result
-    set "results_bedGr_${strain}_${var}", var, behavior_strain into bedGr_to_sushi
-
-    when:
-    params.complete
-
-    script:
-  	"""
-  	jaaba_scores_vs_variables.py -s ${scores} -t ${behavior_strain} -d ${variable_d} -v ${var} -m  ${mapping_file}
-  	mkdir results_annot_${strain}_${var}
-  	mkdir results_bedGr_${strain}_${var}
-
-  	mv *.txt  results_annot_${strain}_${var}/
-    mv *.bedGraph results_bedGr_${strain}_${var}/
-  	"""
 }
 
 /*
@@ -344,53 +392,5 @@ process gviz_plot_behavior_var {
         --image_format=${image_format}
 
     mv "gviz_jaaba_var.${image_format}" "gviz_jaaba_var_${var_name}_${tag_group}.${image_format}"
-    """
-}
-
-/*
- * Compares distribution of intervals annotated as a behavior vs. those no-annotated
- */
-process significance_variable_annotation {
-    input:
-    set file(dir_annot_vs_non_annot), var, strain from annot_vs_non_annot_result
-
-    output:
-    file "boxplot_${var}_${strain}.${image_format}"
-    stdout into FC_pvalue
-
-    when:
-    params.complete
-
-    script:
-    """
-    ttest_var_annotated_jaaba.R --path2files=${dir_annot_vs_non_annot} \
-        --variable_name=${var} \
-        --image_format=${image_format}
-
-    mv ${var}.${image_format} boxplot_${var}_${strain}.${image_format}
-    """
-}
-
-FC_pvalues_collected = FC_pvalue
-                        .collectFile(name: 'FC_pvalue.csv', newLine: false)
-
-/*
- * Volcano plot of P values of the comparison of the variables in periods annotated as a behavior and those no
- * annotated vs the fold change of these variables in periods annotated as a behavior and those no annotated
- */
-process plot_volcano {
-    input:
-    file pvalues_FC from FC_pvalues_collected
-
-    output:
-    file "*.pdf"
-    file 'tbl_fc_pvalues.txt'
-
-    when:
-    params.complete
-
-    script:
-    """
-    volcano_plot_jaaba.R --path2file=${pvalues_FC}
     """
 }
