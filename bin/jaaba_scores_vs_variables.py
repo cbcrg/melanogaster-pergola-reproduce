@@ -59,25 +59,23 @@ tmp_track = NamedTemporaryFile(prefix='jaaba_csv', suffix='.csv', delete=True)
 name_tmp = splitext(basename(tmp_track.name))[0]
 path_out = dirname(abspath(tmp_track.name))
 
+
 jaaba_parsers.jaaba_scores_to_csv(input_file=chase_score_f, path_w=path_out, name_file=name_tmp, norm=True, data_type=annotated_type)
 
 scores_chase_int = intervals.IntData (tmp_track.name, map_dict=mappings_jaaba.correspondence).read()
-# mapping.write_chr_sizes (scores_chase_int, path_w=out_dir, file_n=chr_file_n)
 chr_file_n = "chrom"
 mapping.write_chr_sizes (scores_chase_int, file_n=chr_file_n)
 chr_file = chr_file_n + ".sizes"
 
 bed_annotated_int = scores_chase_int.convert(mode="bed")
 
-# var_traj = ["velmag", "dtheta"]
-
 dict_bedGraph_features = dict()
-# statistic="mean"
-# statistic="distinct"
-statistic="collapse"
+# statistic = "mean"
+# statistic = "distinct"
+statistic = "collapse"
 
 dict_bedGraph_var = jaaba_parsers.extract_jaaba_features(dir_perframe=path_var_jaaba, map_jaaba=args.mapping_file, delimiter="\t",
-                                                             feature=var_traj, output="IntData").read().convert(mode="bedGraph", window=1)
+                                                         feature=var_traj, output="IntData").read().convert(mode="bedGraph", window=1)
 
 list_no_intervals = [("chr1", 0, 1, 0)]
 

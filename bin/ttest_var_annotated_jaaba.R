@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2016, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2016, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -106,23 +106,8 @@ library("ggplot2")
 ## loading aes parameters for plotting 
 source("https://raw.githubusercontent.com/cbcrg/mwm/master/lib/R/plot_param_public.R")
 
-# setwd(path2files)
-
-## this are the two in principle that should be different
-# variable <- "velmag"
-# variable <- "dtheta"
 variable <- variable_name
 
-## I should take into account also the tracks without any annotation
-## as for instances bed 1
-
-# variable <- "velmag"
-# variable <- "dtheta"
-# variable <- "phi"
-# variable <- "dell2nose"
-# variable <- "angle2wall"
-
-# path2files <- "/Users/jespinosa/git/pergola-paper-reproduce/melanogaster_GAL4/results/results_annot"
 files_annotated <- list.files(path=path2files, pattern=paste("values_.*", variable, ".txt$", sep=""), full.names = TRUE)
 
 data_bed <- lapply(files_annotated, read.csv, header=FALSE, sep="\t", stringsAsFactors=FALSE)
@@ -140,8 +125,6 @@ v_no_annotated <- abs(as.numeric(unlist(strsplit(as.character(data_bed_comp.df$V
 # v_no_annotated <- as.numeric(unlist(strsplit(as.character(data_bed_comp.df$V4), ",")))
 
 t_result <- t.test(v_annotated, v_no_annotated)
-
-### HACER EL TTEST DESPUES DE SUBSTITUIR?
 
 ## Fold change calculation
 # to avoid zeros I substitute 0 values by the mean of the values
@@ -168,17 +151,13 @@ cbb_palette <- c("#D55E00", "#0072B2", "#E69F00", "#000000", "#56B4E9", "#009E73
 
 name_out <- paste (variable, ".", image_format, sep="")
 
-ggplot(df_values, aes(id, value, fill=id)) + geom_boxplot(notch=TRUE) + 
-#     labs (#title = "Jaaba annotated vs. non-annotated intervals\n", 
-#           y = paste(variable, "\n", sep=""), x = "\nGroup") +  
-    labs (#title = "Jaaba annotated vs. non-annotated intervals\n", 
-          y = paste("", "\n", sep=""), x = "\n") +  
+ggplot(df_values, aes(id, value, fill=id)) + geom_boxplot(notch=TRUE) +
+    labs (y = paste("", "\n", sep=""), x = "\n") +
     theme(plot.title = element_text(hjust = 0.5)) +
     scale_fill_manual(values = cbb_palette) +
     theme(legend.position="none") +
     # outliers out
     coord_cartesian(ylim = ylim1*1.05) +
-    annotate("text", x=2.3, y=ylim1[2], label=paste("p-value=", signif (t_result$p.value,3))) #+
-#     geom_segment (aes(x = 1.63, y = median(df_values$value[df_values$id=="No annotated"]), xend = 2.37, yend = median(df_values$value[df_values$id=="No annotated"]), colour="white"))
+    annotate("text", x=2.3, y=ylim1[2], label=paste("p-value=", signif (t_result$p.value,3)))
 
 ggsave (file=name_out)

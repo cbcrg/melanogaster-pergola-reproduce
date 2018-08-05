@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -142,7 +142,7 @@ data_bedgraph_variable_comp <- lapply(chase.bedgraph.variable.files.comp, functi
 ylim = boxplot.stats(do.call(rbind, data_bedgraph_variable)$V4)$stats[c(1, 5)]
 ylim_comp = boxplot.stats(do.call(rbind, data_bedgraph_variable_comp)$V4)$stats[c(1, 5)]
 # ranges_plot <- c(min(ylim, ylim_comp), max(ylim, ylim_comp))
-ranges_plot <- c(0,50)
+ranges_plot <- c(0, 50)
 chrom            = "chr1"
 chromstart       = 0
 chromend         = 25000
@@ -164,21 +164,13 @@ plot_name <- "sushi_highlight"
     }
 }
 
-# split.screen (c(2, 1)) 
-
 ## adding a n empty plots for title
 n=3
-# split.screen(c(length(data_bedgraph_variable)+n, 1), screen = 1)
 split.screen(c(length(data_bedgraph_variable), 1))
 screen(1)
 
 par(mar=c(0.1,1,2,0.1))
 
-# plot(1, type="n", axes=F, xlab="", ylab="")
-
-# labelplot("A ", title, letteradj=-.025)
-
-# i=3+n
 i=1
 j=1
 
@@ -193,20 +185,13 @@ j=1
 
 for (bedg_i in seq_along(data_bedgraph_variable)) {
   screen( i )
-  #   par(mar=c(0.1,1,0.1,0.1))
   par(mar=c(0.1, 2, 0.1, 2))
   plotBedgraph(data_bedgraph_variable_comp[[bedg_i]], chrom, chromstart, chromend,
-               #                transparency=.10, 
                transparency=.50,
                color="#009E73", range=ranges_plot)
-               #color=SushiColors(2)(2)[2], range=ranges_plot)
   plotBedgraph(data_bedgraph_variable[[bedg_i]], chrom, chromstart, chromend, transparency=.50,
-#                color=SushiColors(2)(2)[1], overlay=TRUE)# , rescaleoverlay=TRUE)  
-               color=color_annot, overlay=TRUE)# , rescaleoverlay=TRUE)  
-  #   axis(side=2,las=2,tcl=.2)
-  axis(side=2, las=1, tcl=.2, cex.axis=0.5) 
-  #   mtext("Speed (mm/s)\n",side=2,line=1.75,cex=1,font=2)
-  #   mtext(j, side=2, cex=0.5)
+               color=color_annot, overlay=TRUE)
+  axis(side=2, las=1, tcl=.2, cex.axis=0.5)
   mtext(j, side=2, cex=0.5)
   i=i+1
   j=j+1

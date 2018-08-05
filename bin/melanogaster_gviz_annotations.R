@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2017, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2017, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -144,6 +144,6 @@ plot_name <- "gviz_jaaba_annot"
 }
 
 # tiff(name_file, width = 45 , height = 34, units = "cm", res=300)
-plotTracks(bed_tracks, stacking="dense", from=0, collapse=FALSE, shape = "box", col=NULL) 
+plotTracks(bed_tracks, stacking="dense", from=0, collapse=FALSE, shape = "box", col=NULL)
 
 dev.off()

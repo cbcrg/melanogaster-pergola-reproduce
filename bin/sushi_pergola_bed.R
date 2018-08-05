@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
-#  Copyright (c) 2014-2016, Centre for Genomic Regulation (CRG).
-#  Copyright (c) 2014-2016, Jose Espinosa-Carrasco and the respective authors.
+#  Copyright (c) 2014-2018, Centre for Genomic Regulation (CRG).
+#  Copyright (c) 2014-2018, Jose Espinosa-Carrasco and the respective authors.
 #
 #  This file is part of Pergola.
 #
@@ -92,11 +92,9 @@ source("https://bioconductor.org/biocLite.R")
 library('Sushi')
 library(gtools) #mixedsort
 
-# path2bed_files <- "/Users/jespinosa/git/pergola-paper-reproduce/melanogaster_GAL4/results/results_score/"
 base_folder <- path2bed_files
 chase.bed.files <- mixedsort(list.files(base_folder, pattern="tr.*.bed$", full.names=TRUE))
-data_bed <- lapply(chase.bed.files, function (bed, dir=direction) { 
-  # name_id <- gsub("tr_", "", gsub("_dt_chase.bed", "", basename(bed)))
+data_bed <- lapply(chase.bed.files, function (bed, dir=direction) {
   name_id <- sub("tr_(.*?)_dt_.*\\.bed", "\\1", basename(bed))
   bed_tbl <- read.csv(file=bed, header=FALSE, sep="\t", stringsAsFactors=FALSE)
   bed_tbl$name <- as.numeric(name_id)
@@ -131,7 +129,6 @@ chromend         = 25000
     }
 }
 
-# par(mar=c(0.1,1,2,0.1))
 par(mar=c(1, 2, 1, 2))
 
 plotBed (beddata = data_bed.df, chrom = chrom,
@@ -139,9 +136,6 @@ plotBed (beddata = data_bed.df, chrom = chrom,
          rownumber  = data_bed.df$row, type = "region",
          color = data_bed.df$color, row ="given",
          plotbg ="grey95", rowlabels = rev(unique(data_bed.df$name)),
-#          rowlabelcol = unique(data_bed.df$color), rowlabelcex = 1)
          rowlabelcol = "black", rowlabelcex = 1)
-#rowlabelcex = 0.75)
-# labelplot("B ","  Chase", letteradj=-.025)
 
 dev.off()
