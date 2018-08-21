@@ -103,7 +103,7 @@ fc_pvalue <- fc_pvalue [fc_pvalue$pvalue != 0,]
 volcano_ggplot <- ggplot(fc_pvalue) +                  
                   geom_point(aes(x=log2FoldChange, y=-log10(pvalue), color=highlight)) +                  
                   scale_color_manual(values=c('red','black'))+
-                  geom_text_repel(data=fc_pvalue_int, aes(log2FoldChange, -log10(pvalue), label = variable)) +
+                  geom_text_repel(data=fc_pvalue_int, aes(log2FoldChange, -log10(pvalue), label = variable), size=8) +
                   theme_classic(base_size = 16) +
                   theme(legend.position="none") +
                   labs (title = "\n", y = paste("-Log10(p-value)\n", sep=""), 
@@ -113,7 +113,7 @@ volcano_ggplot
 plot_width <- 14
 plot_height <- 8
 
-name_out <- paste ("volcano_plot_labels", ".", image_format, sep="")
+name_out <- paste ("volcano_plot_flies", ".", image_format, sep="")
 ggsave (file=name_out, width=plot_width, height=plot_height)
 
 fc_pvalue$pvalue <- -log10(fc_pvalue$pvalue)

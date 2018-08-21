@@ -59,6 +59,7 @@ nextflow run melanogaster-pergola-reproduce.nf \
 
 ## command to run melanogaster data
 nextflow run melanogaster-pergola-reproduce.nf   --scores='small_data/scores/scores_chase_*.mat'   --var_dir='/Users/jespinosa/Dropbox_CRG_backup/2014_pergolaPaper/data_paper/melanogaster_GAL4/perframe_*'   --variables="all"   --mappings='small_data/mappings/jaaba2pergola.txt'   --output='results'   --image_format='png'   -with-docker
+NXF_VER=0.30.2 nextflow run melanogaster-pergola-reproduce.nf   --scores='small_data/scores/scores_chase_*.mat'   --var_dir='small_data/perframe_*'   --variables="velmag"   --mappings='small_data/mappings/jaaba2pergola.txt'   --output='results'   --image_format='pdf'   -with-docker
 */
 
 /*
@@ -259,7 +260,7 @@ process significance_variable_annotation {
     set file(dir_annot_vs_non_annot), var, strain from annot_vs_non_annot_result
 
     output:
-    file "boxplot_${var}_${strain}.${image_format}"
+    //file "boxplot_${var}_${strain}.${image_format}" //del
     stdout into FC_pvalue
 
     script:
@@ -268,7 +269,7 @@ process significance_variable_annotation {
         --variable_name=${var} \
         --image_format=${image_format}
 
-    mv ${var}.${image_format} boxplot_${var}_${strain}.${image_format}
+    # mv ${var}.${image_format} boxplot_${var}_${strain}.${image_format}
     """
 }
 
@@ -287,7 +288,6 @@ process plot_volcano {
 
     output:
     file "*.${image_format}"
-    //file 'tbl_fc_pvalues.txt'
 
     script:
     """

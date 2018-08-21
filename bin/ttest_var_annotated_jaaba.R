@@ -136,28 +136,30 @@ vector_FC <- c(variable, log2FoldChange, t_result$p.value)
 M_t_vector_FC <- as.matrix(t(vector_FC))
 write.table(M_t_vector_FC, stdout(), sep="\t", col.names=FALSE, row.names=FALSE)
 
+## The plots are not shown thus commmented
 ## bar plot group comparison
-group <- c(rep("Chase annotated", length (v_annotated)), rep("No annotated", length (v_no_annotated)))
-df_values <- data.frame(id = group, value = c(v_annotated, v_no_annotated))
-
-## outliers out 
-## by group, otherwise sometimes the whole boxplot is shown
-ylim_a = boxplot.stats(df_values$value[df_values$id=="Chase annotated"])$stats[c(1, 5)]
-ylim_no_a = boxplot.stats(df_values$value[df_values$id=="No annotated"])$stats[c(1, 5)]
-ylim1 <- c(min(ylim_a, ylim_no_a), max(ylim_a, ylim_no_a))
-
-## colors
-cbb_palette <- c("#D55E00", "#0072B2", "#E69F00", "#000000", "#56B4E9", "#009E73", "#F0E442", "#CC79A7")
-
-name_out <- paste (variable, ".", image_format, sep="")
-
-ggplot(df_values, aes(id, value, fill=id)) + geom_boxplot(notch=TRUE) +
-    labs (y = paste("", "\n", sep=""), x = "\n") +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_fill_manual(values = cbb_palette) +
-    theme(legend.position="none") +
-    # outliers out
-    coord_cartesian(ylim = ylim1*1.05) +
-    annotate("text", x=2.3, y=ylim1[2], label=paste("p-value=", signif (t_result$p.value,3)))
-
-ggsave (file=name_out)
+# group <- c(rep("Chase annotated", length (v_annotated)), rep("No annotated", length (v_no_annotated)))
+# df_values <- data.frame(id = group, value = c(v_annotated, v_no_annotated))
+#
+#
+### outliers out
+### by group, otherwise sometimes the whole boxplot is shown
+# ylim_a = boxplot.stats(df_values$value[df_values$id=="Chase annotated"])$stats[c(1, 5)]
+# ylim_no_a = boxplot.stats(df_values$value[df_values$id=="No annotated"])$stats[c(1, 5)]
+# ylim1 <- c(min(ylim_a, ylim_no_a), max(ylim_a, ylim_no_a))
+#
+# ## colors
+# cbb_palette <- c("#D55E00", "#0072B2", "#E69F00", "#000000", "#56B4E9", "#009E73", "#F0E442", "#CC79A7")
+#
+# name_out <- paste (variable, ".", image_format, sep="")
+#
+# ggplot(df_values, aes(id, value, fill=id)) + geom_boxplot(notch=TRUE) +
+#     labs (y = paste("", "\n", sep=""), x = "\n") +
+#     theme(plot.title = element_text(hjust = 0.5)) +
+#     scale_fill_manual(values = cbb_palette) +
+#     theme(legend.position="none") +
+#     # outliers out
+#     coord_cartesian(ylim = ylim1*1.05) +
+#     annotate("text", x=2.3, y=ylim1[2], label=paste("p-value=", signif (t_result$p.value,3)))
+#
+# ggsave (file=name_out)
