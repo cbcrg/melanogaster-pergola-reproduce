@@ -1,6 +1,6 @@
 # melanogaster-pergola-reproduce.nf
 
-[![DOI](https://zenodo.org/badge/112313806.svg)](https://zenodo.org/badge/latestdoi/112313806)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1400728.svg)](https://doi.org/10.5281/zenodo.1400728)
 ![CircleCI status](https://circleci.com/gh/cbcrg/melanogaster-pergola-reproduce.png?style=shield)
 [![nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.20.0-brightgreen.svg)](http://nextflow.io)
 
@@ -17,13 +17,13 @@ cd melanogaster-pergola-reproduce
 
 ## Data
 
-Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1067836.svg)](https://doi.org/10.5281/zenodo.1067836).
+Data is publicly available in [Zenodo](https://zenodo.org/) as a compressed tarball [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1067835.svg)](https://doi.org/10.5281/zenodo.1067835).
 
 Data can be downloaded and uncompressed using the following command:
 
 ```bash
 mkdir data
-wget -O- https://zenodo.org/record/1067836/files/melanogaster_dataset.tar.gz | tar xz -C data
+wget -O- https://zenodo.org/record/1400728/files/melanogaster_dataset.tar.gz | tar xz -C data
 ```
 
 #### Original Data Sources
@@ -34,18 +34,24 @@ The original data can be downloaded from the following [source](https://sourcefo
 Pull the Docker image use for processing data with Pergola (Pergola and its dependencies installed)
 
 ```bash
-docker pull pergola/pergola@sha256:0737f3e70dde73d0272a0be37e05a36a6fed390c8820c5d2834076b711ab707f
+docker pull pergola/pergola-reproduce@sha256:02bf3e701175104a488f40761b856efa1f97e2f2f82af8adae63b24ac2517326
 ```
+## AQUI TENGO QUE VER COMO HACER PARA QUE DE BOXPLOT SOLO SE VEAN EL DE VELMAG 
+# NEIN
 
+## EN TODO CASO EXPLICAR EN EL PAPER QUE SOLO MIRO EL DE VELMAG
+## No corre en russia porque busca el resto de variables y no estan
 ## Run nextflow pipeline
 Once data is downloaded, it is possible to reproduce all the results using this command:
 
 ```bash
-NXF_VER=0.27.0 nextflow run melanogaster-pergola-reproduce.nf \
+NXF_VER=0.30.2 nextflow run melanogaster-pergola-reproduce.nf \
     --scores='data/scores/scores_chase_*.mat' \
     --var_dir='data/perframe_*' \
-    --variables="velmag" \
+    --variables="all" \
     --mappings='data/mappings/jaaba2pergola.txt' \
+    --output='results' \
+    --image_format='png' \ 
     -with-docker
 ```
 
@@ -56,4 +62,6 @@ The previous command generates a results folder that contains the plots used in 
 * A boxplot comparing the fraction of time performing chase behavior of the GAL4 mutant and the control group   
 * Two figures created using [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html) displaying the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups. 
 * Two figures created using [Sushi](https://bioconductor.org/packages/release/bioc/html/Sushi.html) displaying the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups. 
-* A folder containing all the necessary files to render the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups using [IGV](http://software.broadinstitute.org/software/igv/) 
+* A folder containing all the necessary files to render the intervals annotated as chasing behavior from the GAL4 and the pBDPGAL4 groups using [IGV](http://software.broadinstitute.org/software/igv/)
+* A volcano plot place on the folder with the same name displaying which variables were more different between periods 
+labeled and not labeled as chase behavior by JAABA.  
