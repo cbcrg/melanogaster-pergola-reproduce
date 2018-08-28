@@ -36,11 +36,7 @@ Pull the Docker image use for processing data with Pergola (Pergola and its depe
 ```bash
 docker pull pergola/pergola-reproduce@sha256:02bf3e701175104a488f40761b856efa1f97e2f2f82af8adae63b24ac2517326
 ```
-## AQUI TENGO QUE VER COMO HACER PARA QUE DE BOXPLOT SOLO SE VEAN EL DE VELMAG 
-# NEIN
 
-## EN TODO CASO EXPLICAR EN EL PAPER QUE SOLO MIRO EL DE VELMAG
-## No corre en russia porque busca el resto de variables y no estan
 ## Run nextflow pipeline
 Once data is downloaded, it is possible to reproduce all the results using this command:
 
@@ -51,7 +47,7 @@ NXF_VER=0.30.2 nextflow run melanogaster-pergola-reproduce.nf \
     --variables="all" \
     --mappings='data/mappings/jaaba2pergola.txt' \
     --output='results' \
-    --image_format='png' \ 
+    --image_format='png' \
     -with-docker
 ```
 
